@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRACTICA MINI WHATSAPP</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="/socket.js"></script>
+</head>
+<body>
+    <div id="panel-bienvenida">
+        <h2>Ingrese su usuario y contraseña</h2>
+        <input type="text" id="usuario-input" placeholder="Ingrese su usuario">
+        <input type="password" id="contraseña-input" placeholder="Ingrese su contraseña">
+        <button onclick="iniciarSesion()">Iniciar Sesión</button>
+    </div>
+    <div id="app-chat" style="display:none;">
+        <h2 class="nube box">Chat en vivo</h2>
+        <div id="usuarios-conectados-container" style="width: 200px; margin-right: 20px;">
+            <h3>Usuarios Conectados</h3>
+            <ul id="usuarios-conectados" style="list-style-type: none; padding: 0;"></ul>
+        </div>
+        <div id="ventana-mensajes" style="flex: 1;">
+            <div id="output"></div>
+            <div id="escribiendo-mensaje"></div>
+            <input type="text" id="usuario" readonly>
+            <input type="text" id="mensaje">
+            <button id="enviar">Enviar</button>
+        </div>
+    </div>
+    <script src="chat.js"></script>
+    <script>
+        function iniciarSesion() {
+            const usuario = document.getElementById('usuario-input').value;
+            const contraseña = document.getElementById('contraseña-input').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ usuario, contraseña })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('panel-bienvenida').style.display = 'none';
+                    document.getElementById('app-chat').style.display = 'block';
+                    document.getElementById('usuario').value = data.usuario;
+                    socket.emit('nuevo usuario', data.usuario);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => console.error('Error al iniciar sesión:', err));
+        }
+    </script>
+</body>
+</html>
